@@ -6,9 +6,8 @@ const DBPASSWORD = process.env.DBPASSWORD
 let db
 
 const app = express()
-
 app.use(bodyParser.urlencoded({extended: true}))
-
+app.set('view engine', 'ejs')
 
 MongoClient.connect(`mongodb://${DBUSER}:${DBPASSWORD}@ds161780.mlab.com:61780/express-mongodb`, (err, client) => {
     if(err) return console.log(err);
@@ -20,7 +19,12 @@ MongoClient.connect(`mongodb://${DBUSER}:${DBPASSWORD}@ds161780.mlab.com:61780/e
 
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    db.collection('quotes').find().toArray((err, results) => {
+        if(err) {
+            return console.log(err);
+        }
+        res.render('../view/index.ejs',{quotes: results})
+    })
 })
 
 app.post('/quotes', (req, res) => {
